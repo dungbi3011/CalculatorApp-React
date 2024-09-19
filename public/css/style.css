@@ -1,0 +1,88 @@
+body {
+    background-color: rgba(192, 175, 175, 0.677);
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-width: 700px;
+}
+
+header {
+    height: 100px;
+    margin-top: 1rem;
+    align-items: center;
+    text-align: center;
+}
+
+header img {
+    height: 80px;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.calculator {
+    padding-top: 100px;
+    width: 500px;
+    height: 620px;
+}
+
+.display {
+    height: 190px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 2rem 2rem 0px 0px;
+    background-color: #303439;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: white;
+    font-weight: bold;
+    box-sizing: border-box;
+    font-size: 70px;
+    font-family: Helvetica;
+}
+
+.buttons {
+    width: 100%;
+    height: calc(100% - 120px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+}
+
+button {
+    border: 0.5px solid #4C4D4E;
+    background-color: #928383;
+    font-size: 36px;
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+    outline: none;
+}
+
+.button0 {
+    grid-column: span 2;
+    border-radius: 0px 0px 0px 2rem;
+}
+
+#equal {
+    border-radius: 0px 0px 2rem 0px;
+}
+
+.symbol {
+    background-color: #5C6065;
+}
+
+.operation {
+    background-color: rgb(228, 171, 15);
+}
+
+button:hover {
+    background-color: #EEE0CD;
+    color: black;
+}
+
+.operation:hover {
+    background-color: #EEE0CD;
+    color: rgb(228, 171, 15);
+}
