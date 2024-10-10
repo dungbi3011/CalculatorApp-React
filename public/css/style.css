@@ -31,16 +31,23 @@ header img {
     height: 190px;
     width: 100%;
     padding: 20px;
-    border-radius: 2rem 2rem 0px 0px;
-    background-color: #303439;
+    border-radius: 2rem 2rem 0px 0px;   
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
+    background-color: #303439;
     justify-content: flex-end;
     color: white;
     font-weight: bold;
     box-sizing: border-box;
     font-size: 50px;
     font-family: Helvetica;
+}
+
+.operation-row {
+    font-size: 30px;
+    color: rgb(134, 128, 128);
+    padding-bottom: 20px;
 }
 
 .buttons {

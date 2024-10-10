@@ -1,92 +1,95 @@
 import { useState, useEffect } from "react";
 
 export default function Calculator() {
-  const [display, setDisplay] = useState("");
-  const [operator, setOperator] = useState("");
-  const [previousValue, setPreviousValue] = useState("");
+  const [display, setDisplay] = useState(""); // Bottom display (results)
+  const [operator, setOperator] = useState(null); // Current operator
+  const [previousValue, setPreviousValue] = useState(null); // Previous result/number
+  const [waitingForSecondOperand, setWaitingForSecondOperand] = useState(false); // Waiting for next number
+  const [operationString, setOperationString] = useState(""); // Top operation display
 
   const onClickHandler = (value) => {
-    if (value === " = ") {
-      // Handle equals
-      if (previousValue && operator) {
-        const result = eval(previousValue + operator + display);
-        setOperator("");
+    if (["+", "-", "*", "/"].includes(value)) {
+      if (previousValue === null) { 
+        setPreviousValue(display);
+        setOperationString(display + " " + value); 
+      } else if (operator) {
+        const result = calculate(previousValue, display, operator);
         setDisplay(result.toString());
-        setPreviousValue(result.toString());
-      } else if (previousValue && !operator) {
-        // If there's a previous value but no operator, set the operator
-        setOperator(value);
-        setDisplay("");
+        setPreviousValue(result); 
+        setOperationString(result.toString() + " " + value); 
+      }
+      setOperator(value); // Set new operator
+      setWaitingForSecondOperand(true); // Await the second number
+    } else if (value === "=") {
+      if (operator && previousValue !== null) {
+        const result = calculate(previousValue, display, operator);
+        setDisplay(result.toString());
+        setOperationString(operationString + " " + display + " ="); // Append the current display and = to the top line
+        setPreviousValue(null); // Reset previous value
+        setOperator(null); // Clear operator
+      }
+    } else if (value === "AC") {
+      setDisplay("");
+      setPreviousValue(null);
+      setOperator(null);
+      setOperationString(""); // Clear the operation display
+      setWaitingForSecondOperand(false);
+    } else if (value === "+/-") {
+      setDisplay((prev) => (prev.charAt(0) === "-" ? prev.slice(1) : "-" + prev));
+      setOperationString("");
+    } else if (value === "%") {
+      const result = parseFloat(display) / 100;
+      setDisplay(result.toString());
+      setOperationString("");
+    } else if (value === ".") {
+      if (!display.includes(".")) {
+        setDisplay((prev) => (prev === "" ? "0." : prev + "."));
+        setOperationString("");
+      }
+    } else { // Handle numbers
+      if (waitingForSecondOperand) {
+        // When starting a new input after an operator
+        setDisplay(value);
+        setWaitingForSecondOperand(false); // Reset flag to allow normal input
       } else {
-        // If there's no previous value, set the previous value and operator
-        setPreviousValue(display);
-        setOperator(value);
-        setDisplay("");
+        setDisplay((prev) => (prev === "0" ? value : prev + value));
       }
-    } else if (value === "+" || value === "-" || value === "*" || value === "/") {
-      // Handle operators
-      if (previousValue && operator) {
-        // If there's a previous value and operator, calculate the result and set it as the new previous value
-        const result = eval(previousValue + operator + display);
-        setOperator(value);
-        setDisplay("");
-        setPreviousValue(result.toString());
-      } else if (previousValue && !operator) {
-        // If there's a previous value but no operator, set the operator
-        setOperator(value);
-        setDisplay("");
-      } else {
-        // If there's no previous value, set the previous value and operator
-        setPreviousValue(display);
-        setOperator(value);
-        setDisplay("");
-      }
-    } else {
-      // Handle numbers and decimal point
-      if (operator && !previousValue) {
-        // If an operator is already set and there's no previous value, clear the display
-        setDisplay("");
-      }
-      setDisplay((prev) => prev + value);
     }
   };
 
-  const calculateResult = () => {
-    if (previousValue && operator) {
-      const result = eval(previousValue + operator + display);
-      setDisplay(result.toString());
-      setPreviousValue(result.toString());
-      setOperator("");
+  const calculate = (firstValue, secondValue, operator) => {
+    const firstNum = parseFloat(firstValue);
+    const secondNum = parseFloat(secondValue);
+
+    switch (operator) {
+      case "+":
+        return firstNum + secondNum;
+      case "-":
+        return firstNum - secondNum;
+      case "*":
+        return firstNum * secondNum;
+      case "/":
+        return firstNum / secondNum;
+      default:
+        return secondValue;
     }
   };
 
   const clearDisplay = () => {
-    setDisplay('');
-    setPreviousValue('');
-    setOperator('');
-  };
-
-  const calculatePercentage = () => {
-    const result = parseFloat(display) / 100;
-    setDisplay(result.toString());
-    setPreviousValue(result.toString());
-    setOperator("");
-  };
-
-  const toggleSign = () => {
-    if (display) {
-      setDisplay((prev) => (prev.charAt(0) === "-" ? prev.slice(1) : "-" + prev));
-    }
+    setDisplay("");
+    setPreviousValue(null);
+    setOperator(null);
+    setOperationString("");
   };
 
   useEffect(() => {
     const handleKeyPress = (e) => {
       if (e.key === "Enter") {
-        calculateResult();
+        onClickHandler("=");
       } else if (e.key === "Backspace") {
         clearDisplay();
       } else if (e.key === "%") {
-        calculatePercentage();
+        onClickHandler("%");
       } else if ("0123456789+-*/.".includes(e.key)) {
         onClickHandler(e.key);
       }
@@ -102,17 +105,18 @@ export default function Calculator() {
   return (
     <div className="calculator">
       <div className="display">
-        <div className="operator-row">{operator}</div>
-        <div className="number-row">{display}</div>
+        {/* Display the current operation string above the result */}
+        <div className="operation-row">{operationString}</div>
+        <div className="number-row">{display || "0"}</div> {/* Show the display or "0" */}
       </div>
       <div className="buttons">
-        <button className="symbol" onClick={clearDisplay}>
+        <button className="symbol" onClick={() => onClickHandler("AC")}>
           AC
         </button>
-        <button className="symbol" onClick={toggleSign}>
+        <button className="symbol" onClick={() => onClickHandler("+/-")}>
           +/-
         </button>
-        <button className="symbol" onClick={calculatePercentage}>
+        <button className="symbol" onClick={() => onClickHandler("%")}>
           %
         </button>
         <button className="operation" onClick={() => onClickHandler("/")}>
@@ -140,7 +144,7 @@ export default function Calculator() {
           0
         </button>
         <button onClick={() => onClickHandler(".")}>.</button>
-        <button className="operation" id="equal" onClick={calculateResult}>
+        <button className="operation" id="equal" onClick={() => onClickHandler("=")}>
           =
         </button>
       </div>
